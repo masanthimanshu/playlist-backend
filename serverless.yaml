@@ -7,10 +7,14 @@ provider:
   region: ap-south-1
   runtime: nodejs24.x
 
+  httpApi:
+    cors: true
+
   environment:
     CURRENT_AWS_REGION: ${self:provider.region}
     TABLE_NAME: playlist-backend-data-table
     BUCKET_NAME: playlist-backend-assets-bucket
+    CLOUDFRONT_DOMAIN: ${env:CLOUDFRONT_DOMAIN, ""}
 
   iam: ${file(aws/iam.yaml)}
 
@@ -26,13 +30,23 @@ plugins:
 
 functions:
   storageApi:
-    handler: src/storage/handler.handler
+    handler: src/storage/handlers/handler.handler
     events:
       - httpApi:
           path: /storage
           method: ANY
       - httpApi:
           path: /storage/{proxy+}
+          method: ANY
+
+  tracksApi:
+    handler: src/tracks/handlers/handler.handler
+    events:
+      - httpApi:
+          path: /tracks
+          method: ANY
+      - httpApi:
+          path: /tracks/{proxy+}
           method: ANY
 
 resources: ${file(aws/resources.yaml)}

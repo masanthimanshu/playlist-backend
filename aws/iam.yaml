@@ -1,18 +1,24 @@
 role:
   statements:
-    # AWS DynamoDB
+    # AWS DynamoDB Table Permissions
     - Effect: Allow
       Action:
-        - dynamodb:*
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:DeleteItem
+        - dynamodb:Scan
+        - dynamodb:Query
+        - dynamodb:UpdateItem
       Resource:
         - Fn::GetAtt:
             - PlaylistBackendDataTable
             - Arn
 
-    # AWS S3
+    # AWS S3 Bucket Permissions
     - Effect: Allow
       Action:
         - s3:PutObject
         - s3:GetObject
+        - s3:DeleteObject
       Resource:
         - arn:aws:s3:::playlist-backend-assets-bucket/*

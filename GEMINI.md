@@ -35,12 +35,27 @@ When generating or modifying code in this codebase within Antigravity IDE, stric
 │   ├── bedrock_client.ts   # Bedrock Converse API LLM wrapper
 │   ├── secrets_client.ts   # Secrets Manager client wrapper
 │   └── parameter_store.ts  # SSM Parameter Store client wrapper
-├── src/                    # Domain modules (Controller-Route-Handler pattern)
-│   └── storage/            # Domain folder
-│       ├── controller.ts   # Domain controller functions
-│       ├── controller.test.ts # Unit tests for controller logic
-│       ├── handler.ts      # Serverless Lambda handler export
-│       └── routes.ts       # Express router definitions
+├── src/                    # Domain modules (Modular Controller-Route-Handler-Schema pattern)
+│   ├── storage/            # Storage domain folder
+│   │   ├── controllers/    # Domain controller functions & unit tests
+│   │   │   ├── controller.ts
+│   │   │   └── controller.test.ts
+│   │   ├── handlers/       # Serverless Lambda handler export
+│   │   │   └── handler.ts
+│   │   ├── routes/         # Express router definitions
+│   │   │   └── routes.ts
+│   │   └── schemas/        # Zod validation schemas & TypeScript types
+│   │       └── schema.ts
+│   └── tracks/             # Tracks domain folder
+│       ├── controllers/    # Domain controller functions & unit tests
+│       │   ├── controller.ts
+│       │   └── controller.test.ts
+│       ├── handlers/       # Serverless Lambda handler export
+│       │   └── handler.ts
+│       ├── routes/         # Express router definitions
+│       │   └── routes.ts
+│       └── schemas/        # Zod validation schemas & TypeScript types
+│           └── schema.ts
 ├── serverless.yaml         # Serverless Framework configuration
 ├── tsconfig.json           # TypeScript configuration
 └── vitest.config.ts        # Vitest test runner configuration
@@ -67,10 +82,10 @@ Use Node ESM package imports for internal dependencies:
 
 ## 3. Controller-Route-Service Pattern
 
-Keep route files clean and delegate business logic to domain controllers:
+Keep route files clean and delegate business logic to domain controllers organized into dedicated subfolders (`controllers/`, `routes/`, `schemas/`, `handlers/`):
 
 ```typescript
-// src/<domain>/controller.ts
+// src/<domain>/controllers/controller.ts
 import type { Request, Response } from "express";
 import { logger } from "#modules/runtime_logs.js";
 
@@ -83,20 +98,31 @@ export const storageController = {
     });
   },
 
-  // Add domain controller methods here (e.g. createItem, getItem)
+  // Add domain controller methods here (e.g. getUploadUrl, createItem, getItem)
 };
 ```
 
 ```typescript
-// src/<domain>/routes.ts
+// src/<domain>/routes/routes.ts
 import { Router } from "express";
-import { storageController } from "./controller.js";
+import { storageController } from "../controllers/controller.js";
 
 const router = Router();
 
 router.get("/health", (req, res) => storageController.healthCheck(req, res));
 
 export default router;
+```
+
+```typescript
+// src/<domain>/handlers/handler.ts
+import serverless from "serverless-http";
+import createApp from "#core/create_app.js";
+import router from "../routes/routes.js";
+
+const app = createApp("/<domain>", router);
+
+export const handler = serverless(app);
 ```
 
 ---

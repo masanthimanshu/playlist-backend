@@ -13,10 +13,33 @@ function formatMetadata(data?: unknown): Record<string, string> | undefined {
 export interface GenerateUploadUrlResult {
   uploadUrl: string;
   key: string;
+  cdnUrl: string;
 }
 
 /**
- * Generates an S3 presigned PUT URL for direct client upload.
+ * Resolves an S3 key to a CloudFront CDN URL (or S3 HTTPS URL fallback).
+ */
+export function resolveCdnUrl(keyOrUrl: string): string {
+  if (!keyOrUrl) return "";
+  if (keyOrUrl.startsWith("http://") || keyOrUrl.startsWith("https://")) {
+    return keyOrUrl;
+  }
+
+  const cleanKey = keyOrUrl.startsWith("/") ? keyOrUrl.slice(1) : keyOrUrl;
+  const cdnDomain = process.env.CLOUDFRONT_DOMAIN;
+
+  if (cdnDomain && cdnDomain.trim() !== "") {
+    const domain = cdnDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    return `https://${domain}/${cleanKey}`;
+  }
+
+  const bucket = process.env.BUCKET_NAME || "playlist-backend-assets-bucket";
+  const region = process.env.CURRENT_AWS_REGION || "ap-south-1";
+  return `https://${bucket}.s3.${region}.amazonaws.com/${cleanKey}`;
+}
+
+/**
+ * Generates an S3 presigned PUT URL for direct client upload and returns CDN URL.
  */
 export async function generateUploadUrl(
   prefix: string,
@@ -25,7 +48,8 @@ export async function generateUploadUrl(
   data?: unknown,
   expiresIn = 300,
 ): Promise<GenerateUploadUrlResult> {
-  const key = `${prefix}/${randomUUID()}.${ext}`;
+  const cleanExt = ext.replace(/^\./, "");
+  const key = `${prefix}/${randomUUID()}.${cleanExt}`;
 
   const command = new PutObjectCommand({
     Key: key,
@@ -35,16 +59,21 @@ export async function generateUploadUrl(
   });
 
   const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn });
+  const cdnUrl = resolveCdnUrl(key);
 
-  return { uploadUrl, key };
+  return { uploadUrl, key, cdnUrl };
 }
 
-export const generateImageUploadUrl = (
+export const generateCoverUploadUrl = (
+  contentType = "image/png",
+  ext = "png",
   data?: unknown,
 ): Promise<GenerateUploadUrlResult> =>
-  generateUploadUrl("images", "webp", "image/webp", data);
+  generateUploadUrl("covers", ext, contentType, data);
 
 export const generateAudioUploadUrl = (
+  contentType = "audio/mpeg",
+  ext = "mp3",
   data?: unknown,
 ): Promise<GenerateUploadUrlResult> =>
-  generateUploadUrl("audio", "mp3", "audio/mpeg", data);
+  generateUploadUrl("audio", ext, contentType, data);

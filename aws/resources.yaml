@@ -1,5 +1,5 @@
 Resources:
-  # AWS DynamoDB Table
+  # AWS DynamoDB Table (Pay-per-request for Free Tier)
   PlaylistBackendDataTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -11,10 +11,8 @@ Resources:
       KeySchema:
         - AttributeName: id
           KeyType: HASH
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
 
-  # AWS S3 Bucket
+  # AWS S3 Bucket (Private, accessed through CloudFront)
   PlaylistBackendAssetsBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -28,14 +26,71 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
-      LifecycleConfiguration:
-        Rules:
-          - Id: playlist-backend-assets-bucket-lifecycle
-            Status: Enabled
-            Prefix: "images/"
-            ExpirationInDays: 100
-            Transitions:
-              - StorageClass: GLACIER_IR
-                TransitionInDays: 10
-            AbortIncompleteMultipartUpload:
-              DaysAfterInitiation: 5
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - HEAD
+            AllowedOrigins:
+              - "*"
+            MaxAge: 3600
+
+  # CloudFront Origin Access Control (OAC)
+  PlaylistBackendCloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: playlist-backend-s3-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # AWS CloudFront CDN Distribution (PriceClass_100 for lowest/free tier cost)
+  PlaylistBackendCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: CDN distribution for playlist audio and cover assets
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt PlaylistBackendAssetsBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt PlaylistBackendCloudFrontOAC.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          # Managed-CachingOptimized Cache Policy ID
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+
+  # S3 Bucket Policy granting CloudFront read access
+  PlaylistBackendAssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref PlaylistBackendAssetsBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipalReadOnly
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "arn:aws:s3:::playlist-backend-assets-bucket/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${PlaylistBackendCloudFrontDistribution}"
