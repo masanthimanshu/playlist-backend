@@ -20,7 +20,7 @@
 | **Edge Distribution & CDN** | Amazon CloudFront (OAC)                          | Edge caching via `PriceClass_100` distribution with `Managed-CachingOptimized` cache policy; authenticates against private S3 buckets via SigV4 Origin Access Control (OAC) without public bucket exposure.                    |
 | **API Management**          | AWS HTTP API Gateway (v2)                        | Low-latency, cost-effective HTTP proxy layer configured with automatic CORS handling and wildcard route forwarding (`/storage/{proxy+}`, `/tracks/{proxy+}`).                                                                  |
 | **Observability**           | Custom Structured JSON Logger                    | Machine-readable, structured JSON log streaming (`INFO`, `WARN`, `ERROR`, `DEBUG`) with automated Error object serialization for seamless CloudWatch Logs Insights indexing and querying.                                      |
-| **Testing Suite**           | Vitest 4                                         | Blazing fast ESM-native test runner executing 25 unit and integration tests across 5 test suites in <400ms with comprehensive AWS SDK and Express mocking.                                                                     |
+| **Testing Suite**           | Vitest 4                                         | Blazing fast ESM-native test runner executing 48 unit and integration tests across 7 test suites in <450ms with comprehensive AWS SDK and Express mocking.                                                                     |
 | **DevOps & CI/CD**          | GitHub Actions (`deploy-serverless.yaml`)        | Automated CI/CD pipeline executing TypeScript typechecks (`tsc --noEmit`), security credential handshakes, and zero-downtime serverless deployments on push to `main`.                                                         |
 
 ---
@@ -55,7 +55,7 @@
 
 - **The Challenge:** Cloud-native and serverless architectures often suffer from deployment regressions and difficult local testing cycles due to tightly coupled cloud dependencies.
 - **The Action:** Developed a comprehensive Vitest test suite covering all middleware, AWS client wrappers, and domain controller workflows with robust mock assertions. Configured a GitHub Actions CI/CD pipeline enforcing strict TypeScript type validation (`tsc --noEmit`) before triggering automated Serverless Framework cloud deployments.
-- **The Result:** Achieved a 100% test pass rate across 25 tests in under 400ms, prevented broken builds from reaching production, and enabled rapid, risk-free release cycles.
+- **The Result:** Achieved a 100% test pass rate across 48 tests in 7 test suites in under 450ms, prevented broken builds from reaching production, and enabled rapid, risk-free release cycles.
 
 ---
 
@@ -139,7 +139,7 @@ Use these metric formulations to highlight quantifiable impact on your resume:
 
 5. **Test Reliability & Code Quality:**
 
-   > _"Constructed automated test suite of **25 unit and integration tests across 5 test suites in Vitest**, achieving **100% pass rate** in <400ms alongside zero-defect CI/CD deployments via GitHub Actions."_
+   > _"Constructed automated test suite of **48 unit and integration tests across 7 test suites in Vitest**, achieving **100% pass rate** in <450ms alongside zero-defect CI/CD deployments via GitHub Actions."_
 
 6. **Type Safety & Data Integrity:**
 

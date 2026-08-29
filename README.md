@@ -30,7 +30,7 @@ A high-performance, event-driven serverless backend for the Playlist web applica
   - [Running Tests & Type Checking](#running-tests--type-checking)
   - [Deployment](#deployment)
 - [Contributing](#contributing)
-- [Support & Feedback](#support--feedback)
+- [Support & Resources](#support--resources)
 - [License](#license)
 
 ---
@@ -104,6 +104,10 @@ The project follows a modular, domain-driven structure decoupling routes, contro
 
 ```
 playlist-backend/
+├── .agent/skills/                   # Project-tailored Antigravity skills
+│   ├── gemini-create/SKILL.md       # Guidelines generation skill
+│   ├── readme-create/SKILL.md       # Documentation generation skill
+│   └── summary-create/SKILL.md      # Resume technical summary skill
 ├── .github/
 │   └── workflows/
 │       └── deploy-serverless.yaml   # CI/CD automated deployment workflow
@@ -170,7 +174,7 @@ playlist-backend/
 | `POST`   | `/tracks/create-track` | Create a new track record       | `CreateTrackInput` |
 | `DELETE` | `/tracks/:id`          | Delete a track by UUID          | _None_             |
 
-**Create Track Request:**
+**Create Track Request Body:**
 
 ```json
 {
@@ -283,12 +287,13 @@ Please ensure all tests pass and code adheres to the project's structured loggin
 
 ---
 
-## Support & Feedback
+## Support & Resources
 
 If you run into any issues or have questions:
 
 - Open an issue on the [GitHub Issues](https://github.com/your-username/playlist-backend/issues) page.
 - Review architectural specifications in [aws/resources.yaml](./aws/resources.yaml) and [serverless.yaml](./serverless.yaml).
+- Project guidelines: [GEMINI.md](./GEMINI.md)
 
 ---
 
