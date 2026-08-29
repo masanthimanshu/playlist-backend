@@ -31,7 +31,6 @@ export const storageController = {
     try {
       const payload =
         (req as CustomRequest<UploadUrlInput>).validated ??
-        (req.query as unknown as UploadUrlInput) ??
         (req.body as UploadUrlInput);
       const { type, contentType, extension } = payload;
       const config = MEDIA_CONFIG[type] ?? MEDIA_CONFIG.cover;

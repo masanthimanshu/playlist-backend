@@ -143,14 +143,23 @@ playlist-backend/
 
 ### Storage Domain (`/storage`)
 
-| Method | Endpoint              | Description                                           | Query Parameters / Payload |
-| ------ | --------------------- | ----------------------------------------------------- | -------------------------- |
-| `GET`  | `/storage/health`     | Service health status                                 | _None_                     |
-| `GET`  | `/storage/upload-url` | Generate S3 presigned upload URL & CloudFront CDN URL | `UploadUrlInput` (Query)   |
+| Method | Endpoint              | Description                                           | Request Payload / Body  |
+| ------ | --------------------- | ----------------------------------------------------- | ----------------------- |
+| `GET`  | `/storage/health`     | Service health status                                 | _None_                  |
+| `POST` | `/storage/upload-url` | Generate S3 presigned upload URL & CloudFront CDN URL | `UploadUrlInput` (Body) |
 
-**Generate Upload URL Request (Query Parameters):**
+**Generate Upload URL Request (JSON Body):**
 
-`GET /storage/upload-url?type=audio&contentType=audio%2Fmpeg&extension=mp3`
+```http
+POST /storage/upload-url
+Content-Type: application/json
+
+{
+  "type": "audio",
+  "contentType": "audio/mpeg",
+  "extension": "mp3"
+}
+```
 
 **Response (`200 OK`):**
 

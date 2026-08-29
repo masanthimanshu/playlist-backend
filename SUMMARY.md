@@ -74,7 +74,7 @@ sequenceDiagram
     participant DDB as Amazon DynamoDB
 
     Note over Client,Lambda: Phase 1: Presigned Ingestion
-    Client->>APIGW: GET /storage/upload-url?type=audio&contentType=audio/mpeg
+    Client->>APIGW: POST /storage/upload-url { type, contentType, extension }
     APIGW->>Lambda: Route to storageApi handler
     Lambda->>Lambda: Generate S3 Presigned PUT URL (TTL: 300s) + CDN URL
     Lambda-->>Client: 200 OK { uploadUrl, key, cdnUrl }

@@ -42,9 +42,9 @@ describe("storageController", () => {
   });
 
   describe("getUploadUrl", () => {
-    it("generates presigned upload URL for audio (.mp3) via query parameters", async () => {
+    it("generates presigned upload URL for audio (.mp3) via request body", async () => {
       const req = {
-        query: { type: "audio", contentType: "audio/mpeg", extension: "mp3" },
+        body: { type: "audio", contentType: "audio/mpeg", extension: "mp3" },
       } as unknown as Request;
       const res = mockResponse();
 
@@ -69,9 +69,9 @@ describe("storageController", () => {
       });
     });
 
-    it("generates presigned upload URL for cover (.png) via body or query defaults", async () => {
+    it("generates presigned upload URL for cover (.png) via request body defaults", async () => {
       const req = {
-        query: { type: "cover" },
+        body: { type: "cover" },
       } as unknown as Request;
       const res = mockResponse();
 
