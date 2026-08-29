@@ -1,0 +1,41 @@
+Resources:
+  # AWS DynamoDB Table
+  PlaylistBackendDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: playlist-backend-data-table
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+
+  # AWS S3 Bucket
+  PlaylistBackendAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: playlist-backend-assets-bucket
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: playlist-backend-assets-bucket-lifecycle
+            Status: Enabled
+            Prefix: "images/"
+            ExpirationInDays: 100
+            Transitions:
+              - StorageClass: GLACIER_IR
+                TransitionInDays: 10
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 5

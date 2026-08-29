@@ -1,0 +1,37 @@
+{
+  "name": "playlist-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "imports": {
+    "#core/*": "./core/*",
+    "#modules/*": "./modules/*"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "build": "serverless package",
+    "deploy": "serverless deploy",
+    "dev": "serverless offline start --reloadHandler"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.750.0",
+    "@aws-sdk/client-s3": "^3.750.0",
+    "@aws-sdk/lib-dynamodb": "^3.750.0",
+    "@aws-sdk/s3-request-presigner": "^3.750.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "serverless-http": "^4.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.162",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.4.0",
+    "serverless": "^4.41.1",
+    "serverless-offline": "^14.8.0",
+    "typescript": "^7.0.2",
+    "vitest": "^3.0.7"
+  }
+}

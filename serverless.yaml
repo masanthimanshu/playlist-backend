@@ -1,0 +1,38 @@
+service: playlist-backend
+frameworkVersion: "4"
+
+provider:
+  name: aws
+  stage: prod
+  region: ap-south-1
+  runtime: nodejs24.x
+
+  environment:
+    CURRENT_AWS_REGION: ${self:provider.region}
+    TABLE_NAME: playlist-backend-data-table
+    BUCKET_NAME: playlist-backend-assets-bucket
+
+  iam: ${file(aws/iam.yaml)}
+
+build:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    target: node24
+
+plugins:
+  - serverless-offline
+
+functions:
+  storageApi:
+    handler: src/storage/handler.handler
+    events:
+      - httpApi:
+          path: /storage
+          method: ANY
+      - httpApi:
+          path: /storage/{proxy+}
+          method: ANY
+
+resources: ${file(aws/resources.yaml)}

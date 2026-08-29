@@ -1,0 +1,18 @@
+role:
+  statements:
+    # AWS DynamoDB
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - Fn::GetAtt:
+            - PlaylistBackendDataTable
+            - Arn
+
+    # AWS S3
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource:
+        - arn:aws:s3:::playlist-backend-assets-bucket/*
