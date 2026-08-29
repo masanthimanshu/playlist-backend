@@ -1,3 +1,4 @@
+org: scoobies
 service: playlist-backend
 frameworkVersion: "4"
 
