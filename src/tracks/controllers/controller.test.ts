@@ -158,6 +158,32 @@ describe("tracksController (DynamoDB Domain)", () => {
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ error: "Track not found" });
     });
+
+    it("returns 400 when ID param is missing", async () => {
+      const req = { params: {} } as unknown as Request;
+      const res = mockResponse();
+
+      await tracksController.getTrackById(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: "Track ID is required" });
+    });
+
+    it("returns 500 when getData fails", async () => {
+      const req = { params: { id: "track-err" } } as unknown as Request;
+      const res = mockResponse();
+
+      vi.spyOn(dynamoClient, "getData").mockRejectedValue(
+        new Error("DB Error"),
+      );
+
+      await tracksController.getTrackById(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Failed to retrieve track",
+      });
+    });
   });
 
   describe("createTrack", () => {
@@ -201,6 +227,71 @@ describe("tracksController (DynamoDB Domain)", () => {
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(createdRecord);
     });
+
+    it("persists a new track with single string artist converted to array", async () => {
+      const req = {
+        body: {
+          title: "Solo Song",
+          artist: "Single Artist",
+          category: "Acoustic",
+          audioUrl: "audio/solo.mp3",
+          coverUrl: "covers/solo.png",
+        },
+      } as unknown as Request;
+      const res = mockResponse();
+
+      vi.spyOn(s3Client, "resolveCdnUrl").mockImplementation(
+        (key) => `https://cdn.example.com/${key}`,
+      );
+
+      const createdRecord = {
+        id: "solo-uuid",
+        title: "Solo Song",
+        artist: ["Single Artist"],
+        category: "Acoustic",
+        audioUrl: "https://cdn.example.com/audio/solo.mp3",
+        coverUrl: "https://cdn.example.com/covers/solo.png",
+        timestamp: "2026-08-29T12:00:00.000Z",
+      };
+
+      vi.spyOn(dynamoClient, "writeData").mockResolvedValue(createdRecord);
+
+      await tracksController.createTrack(req, res);
+
+      expect(dynamoClient.writeData).toHaveBeenCalledWith({
+        title: "Solo Song",
+        artist: ["Single Artist"],
+        category: "Acoustic",
+        audioUrl: "https://cdn.example.com/audio/solo.mp3",
+        coverUrl: "https://cdn.example.com/covers/solo.png",
+      });
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith(createdRecord);
+    });
+
+    it("returns 500 when writeData fails", async () => {
+      const req = {
+        body: {
+          title: "Fail Track",
+          artist: ["Artist"],
+          category: "Pop",
+          audioUrl: "audio/fail.mp3",
+          coverUrl: "covers/fail.png",
+        },
+      } as Request;
+      const res = mockResponse();
+
+      vi.spyOn(dynamoClient, "writeData").mockRejectedValue(
+        new Error("Write failed"),
+      );
+
+      await tracksController.createTrack(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Failed to create track",
+      });
+    });
   });
 
   describe("deleteTrack", () => {
@@ -217,6 +308,32 @@ describe("tracksController (DynamoDB Domain)", () => {
       expect(res.json).toHaveBeenCalledWith({
         message: "Track deleted successfully",
         id: "track-123",
+      });
+    });
+
+    it("returns 400 when ID param is missing", async () => {
+      const req = { params: {} } as unknown as Request;
+      const res = mockResponse();
+
+      await tracksController.deleteTrack(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: "Track ID is required" });
+    });
+
+    it("returns 500 when deleteData fails", async () => {
+      const req = { params: { id: "track-123" } } as unknown as Request;
+      const res = mockResponse();
+
+      vi.spyOn(dynamoClient, "deleteData").mockRejectedValue(
+        new Error("Delete failed"),
+      );
+
+      await tracksController.deleteTrack(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Failed to delete track",
       });
     });
   });

@@ -42,10 +42,10 @@ describe("storageController", () => {
   });
 
   describe("getUploadUrl", () => {
-    it("generates presigned upload URL for audio (.mp3)", async () => {
+    it("generates presigned upload URL for audio (.mp3) via query parameters", async () => {
       const req = {
-        body: { type: "audio", contentType: "audio/mpeg", extension: "mp3" },
-      } as Request;
+        query: { type: "audio", contentType: "audio/mpeg", extension: "mp3" },
+      } as unknown as Request;
       const res = mockResponse();
 
       vi.spyOn(s3Client, "generateUploadUrl").mockResolvedValue({
@@ -69,10 +69,10 @@ describe("storageController", () => {
       });
     });
 
-    it("generates presigned upload URL for cover (.png)", async () => {
+    it("generates presigned upload URL for cover (.png) via body or query defaults", async () => {
       const req = {
-        body: { type: "cover" },
-      } as Request;
+        query: { type: "cover" },
+      } as unknown as Request;
       const res = mockResponse();
 
       vi.spyOn(s3Client, "generateUploadUrl").mockResolvedValue({

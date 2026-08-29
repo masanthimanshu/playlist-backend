@@ -12,22 +12,21 @@ import {
 const dbClient = new DynamoDBClient({ region: process.env.CURRENT_AWS_REGION });
 export const docClient = DynamoDBDocumentClient.from(dbClient);
 
-export interface WriteDataResult {
-  id: string;
-}
+export type DynamoItem<T> = T & { id: string; timestamp: string };
 
 /**
  * Inserts a record into the primary DynamoDB table.
  * @param data - Object payload to persist.
- * @returns Resulting unique item identifier.
+ * @returns Resulting item with id and timestamp.
  */
 export async function writeData<T extends Record<string, unknown>>(
   data: T,
-): Promise<WriteDataResult & T & { timestamp: string }> {
-  const id = (data.id as string) || randomUUID();
-  const timestamp = (data.timestamp as string) || new Date().toISOString();
-
-  const item = { ...data, id, timestamp };
+): Promise<DynamoItem<T>> {
+  const item: DynamoItem<T> = {
+    id: randomUUID(),
+    timestamp: new Date().toISOString(),
+    ...data,
+  } as DynamoItem<T>;
 
   const params = {
     TableName: process.env.TABLE_NAME,
@@ -36,11 +35,9 @@ export async function writeData<T extends Record<string, unknown>>(
 
   try {
     await docClient.send(new PutCommand(params));
-    return item as WriteDataResult & T & { timestamp: string };
+    return item;
   } catch (err: unknown) {
-    logger.error("Error writing data to DynamoDB", {
-      error: err instanceof Error ? err.message : String(err),
-    });
+    logger.error("Error writing data to DynamoDB", { error: err });
     throw err;
   }
 }
@@ -62,10 +59,7 @@ export async function getData<T extends Record<string, unknown>>(
     const result = await docClient.send(new GetCommand(params));
     return (result.Item as T) || null;
   } catch (err: unknown) {
-    logger.error("Error fetching data from DynamoDB", {
-      id,
-      error: err instanceof Error ? err.message : String(err),
-    });
+    logger.error("Error fetching data from DynamoDB", { id, error: err });
     throw err;
   }
 }
@@ -85,9 +79,7 @@ export async function listData<T extends Record<string, unknown>>(): Promise<
     const result = await docClient.send(new ScanCommand(params));
     return (result.Items as T[]) || [];
   } catch (err: unknown) {
-    logger.error("Error scanning data from DynamoDB", {
-      error: err instanceof Error ? err.message : String(err),
-    });
+    logger.error("Error scanning data from DynamoDB", { error: err });
     throw err;
   }
 }
@@ -106,10 +98,7 @@ export async function deleteData(id: string): Promise<boolean> {
     await docClient.send(new DeleteCommand(params));
     return true;
   } catch (err: unknown) {
-    logger.error("Error deleting data from DynamoDB", {
-      id,
-      error: err instanceof Error ? err.message : String(err),
-    });
+    logger.error("Error deleting data from DynamoDB", { id, error: err });
     throw err;
   }
 }

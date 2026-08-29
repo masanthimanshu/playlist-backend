@@ -11,8 +11,8 @@ provider:
     cors: true
 
   environment:
-    CURRENT_AWS_REGION: ${self:provider.region}
     TABLE_NAME: playlist-backend-data-table
+    CURRENT_AWS_REGION: ${self:provider.region}
     BUCKET_NAME: playlist-backend-assets-bucket
     CLOUDFRONT_DOMAIN: ${env:CLOUDFRONT_DOMAIN, ""}
 

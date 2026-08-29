@@ -53,4 +53,59 @@ describe("validateData middleware", () => {
       }),
     );
   });
+
+  it("should validate and forward valid query parameters on GET requests", () => {
+    const querySchema = z.object({
+      type: z.enum(["audio", "cover"]),
+      format: z.string().optional(),
+    });
+    const validQuery = { type: "audio", format: "mp3" };
+    const req = {
+      method: "GET",
+      query: validQuery,
+      body: {},
+      path: "/storage/upload-url",
+    } as unknown as CustomRequest;
+
+    const res = {} as Response;
+    const next = vi.fn() as unknown as NextFunction;
+
+    const middleware = validateData(querySchema);
+    middleware(req, res, next);
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(req.validated).toEqual(validQuery);
+    expect(req.query).toEqual(validQuery);
+  });
+
+  it("should return HTTP 400 when query parameters are invalid on GET requests", () => {
+    const querySchema = z.object({
+      type: z.enum(["audio", "cover"]),
+    });
+    const invalidQuery = { type: "video" };
+    const req = {
+      method: "GET",
+      query: invalidQuery,
+      body: {},
+      path: "/storage/upload-url",
+    } as unknown as Request;
+
+    const jsonMock = vi.fn();
+    const statusMock = vi.fn().mockReturnValue({ json: jsonMock });
+    const res = {
+      status: statusMock,
+    } as unknown as Response;
+    const next = vi.fn() as unknown as NextFunction;
+
+    const middleware = validateData(querySchema);
+    middleware(req, res, next);
+
+    expect(next).not.toHaveBeenCalled();
+    expect(statusMock).toHaveBeenCalledWith(400);
+    expect(jsonMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: "Validation failed",
+      }),
+    );
+  });
 });

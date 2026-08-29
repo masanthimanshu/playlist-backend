@@ -9,7 +9,7 @@ const router = Router();
 router.get("/health", (req, res) => storageController.healthCheck(req, res));
 
 // Presigned URL generation for S3 direct uploads
-router.post(
+router.get(
   "/upload-url",
   validateData(UploadUrlSchema),
   (req, res) => void storageController.getUploadUrl(req, res),

@@ -9,7 +9,10 @@ const router = Router();
 router.get("/health", (req, res) => tracksController.healthCheck(req, res));
 
 // Get all tracks from DynamoDB
-router.get("/get-tracks", (req, res) => void tracksController.getTracks(req, res));
+router.get(
+  "/get-tracks",
+  (req, res) => void tracksController.getTracks(req, res),
+);
 
 // Get track by ID from DynamoDB
 router.get("/:id", (req, res) => void tracksController.getTrackById(req, res));
@@ -21,7 +24,10 @@ router.post(
   (req, res) => void tracksController.createTrack(req, res),
 );
 
-// Delete track from DynamoDB
-router.delete("/:id", (req, res) => void tracksController.deleteTrack(req, res));
+// Delete track by ID from DynamoDB
+router.delete(
+  "/:id",
+  (req, res) => void tracksController.deleteTrack(req, res),
+);
 
 export default router;

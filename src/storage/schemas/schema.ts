@@ -8,8 +8,4 @@ export const UploadUrlSchema = z.object({
 
 export type UploadUrlInput = z.infer<typeof UploadUrlSchema>;
 
-export interface GenerateUploadUrlResponse {
-  uploadUrl: string;
-  key: string;
-  cdnUrl: string;
-}
+export type { GenerateUploadUrlResult } from "#modules/s3_client.js";

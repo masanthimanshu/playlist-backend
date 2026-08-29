@@ -25,11 +25,11 @@ export function resolveCdnUrl(keyOrUrl: string): string {
     return keyOrUrl;
   }
 
-  const cleanKey = keyOrUrl.startsWith("/") ? keyOrUrl.slice(1) : keyOrUrl;
-  const cdnDomain = process.env.CLOUDFRONT_DOMAIN;
+  const cleanKey = keyOrUrl.replace(/^\/+/, "");
+  const cdnDomain = process.env.CLOUDFRONT_DOMAIN?.trim();
 
-  if (cdnDomain && cdnDomain.trim() !== "") {
-    const domain = cdnDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  if (cdnDomain) {
+    const domain = cdnDomain.replace(/^https?:\/\//, "").replace(/\/+$/, "");
     return `https://${domain}/${cleanKey}`;
   }
 
@@ -63,17 +63,3 @@ export async function generateUploadUrl(
 
   return { uploadUrl, key, cdnUrl };
 }
-
-export const generateCoverUploadUrl = (
-  contentType = "image/png",
-  ext = "png",
-  data?: unknown,
-): Promise<GenerateUploadUrlResult> =>
-  generateUploadUrl("covers", ext, contentType, data);
-
-export const generateAudioUploadUrl = (
-  contentType = "audio/mpeg",
-  ext = "mp3",
-  data?: unknown,
-): Promise<GenerateUploadUrlResult> =>
-  generateUploadUrl("audio", ext, contentType, data);
