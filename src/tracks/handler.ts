@@ -5,4 +5,3 @@ import router from "./routes/routes.js";
 const app = createApp("/tracks", router);
 
 export const handler = serverless(app);
-

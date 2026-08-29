@@ -25,6 +25,9 @@ build:
     minify: false
     sourcemap: true
     target: node24
+    platform: node
+    banner:
+      js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);"
 
 plugins:
   - serverless-offline
