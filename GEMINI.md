@@ -45,8 +45,7 @@ When generating or modifying code in this codebase within Antigravity IDE, stric
 │   │   ├── controllers/
 │   │   │   ├── controller.ts       # Storage domain controller
 │   │   │   └── controller.test.ts  # Storage controller unit tests
-│   │   ├── handlers/
-│   │   │   └── handler.ts          # Serverless Lambda handler export for /storage
+│   │   ├── handler.ts              # Serverless Lambda handler export for /storage
 │   │   ├── routes/
 │   │   │   └── routes.ts           # Express router definitions for storage endpoints
 │   │   └── schemas/
@@ -55,8 +54,7 @@ When generating or modifying code in this codebase within Antigravity IDE, stric
 │       ├── controllers/
 │       │   ├── controller.ts       # Tracks domain controller
 │       │   └── controller.test.ts  # Tracks controller unit tests
-│       ├── handlers/
-│       │   └── handler.ts          # Serverless Lambda handler export for /tracks
+│       ├── handler.ts              # Serverless Lambda handler export for /tracks
 │       ├── routes/
 │       │   └── routes.ts           # Express router definitions for tracks endpoints
 │       └── schemas/
@@ -100,7 +98,7 @@ Every domain module in `src/<domain>/` must adhere to the 4-layer modular patter
 1. **Schemas (`schemas/schema.ts`):** Define Zod schemas and infer TypeScript types for inputs, outputs, and database entity models.
 2. **Controllers (`controllers/controller.ts`):** Contain business logic, invoke client wrappers, return explicit HTTP status codes, and emit structured logs.
 3. **Routes (`routes/routes.ts`):** Map HTTP verbs/paths to controller methods, attaching `validateData(Schema)` middleware to endpoints requiring validation.
-4. **Handlers (`handlers/handler.ts`):** Instantiate the Express app via `createApp("/<domain>", router)` and wrap with `serverless(app)`.
+4. **Handlers (`handler.ts`):** Instantiate the Express app via `createApp("/<domain>", router)` and wrap with `serverless(app)`.
 
 ### Canonical Implementation Example
 
@@ -196,12 +194,12 @@ router.post(
 export default router;
 ```
 
-#### 4. Handler (`src/<domain>/handlers/handler.ts`)
+#### 4. Handler (`src/<domain>/handler.ts`)
 
 ```typescript
 import serverless from "serverless-http";
 import createApp from "#core/create_app.js";
-import router from "../routes/routes.js";
+import router from "./routes/routes.js";
 
 const app = createApp("/<domain>", router);
 

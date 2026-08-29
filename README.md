@@ -124,12 +124,12 @@ playlist-backend/
 ├── src/
 │   ├── storage/                     # Storage Domain (S3 presigned URLs & CDN)
 │   │   ├── controllers/             # Controller business logic & unit tests
-│   │   ├── handlers/                # AWS Lambda handler entry point
+│   │   ├── handler.ts               # AWS Lambda handler entry point
 │   │   ├── routes/                  # Express route definitions
 │   │   └── schemas/                 # Zod validation schemas & TypeScript types
 │   └── tracks/                      # Tracks Domain (DynamoDB metadata persistence)
 │       ├── controllers/             # Controller business logic & unit tests
-│       ├── handlers/                # AWS Lambda handler entry point
+│       ├── handler.ts               # AWS Lambda handler entry point
 │       ├── routes/                  # Express route definitions
 │       └── schemas/                 # Zod validation schemas & TypeScript types
 ├── serverless.yaml                  # Serverless Framework configuration & functions

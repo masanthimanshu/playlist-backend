@@ -28,7 +28,7 @@ export function resolveCdnUrl(keyOrUrl: string): string {
   const cleanKey = keyOrUrl.replace(/^\/+/, "");
   const cdnDomain = process.env.CLOUDFRONT_DOMAIN?.trim();
 
-  if (cdnDomain) {
+  if (cdnDomain && !cdnDomain.includes("[object Object]")) {
     const domain = cdnDomain.replace(/^https?:\/\//, "").replace(/\/+$/, "");
     return `https://${domain}/${cleanKey}`;
   }

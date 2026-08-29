@@ -45,6 +45,16 @@ describe("s3Client module", () => {
         "https://my-bucket.s3.ap-south-1.amazonaws.com/covers/cover.png",
       );
     });
+
+    it("falls back to S3 URL when CLOUDFRONT_DOMAIN is [object Object] (local CFN mock)", () => {
+      process.env.CLOUDFRONT_DOMAIN = "[object Object]";
+      process.env.BUCKET_NAME = "my-bucket";
+      process.env.CURRENT_AWS_REGION = "ap-south-1";
+
+      expect(resolveCdnUrl("covers/cover.png")).toBe(
+        "https://my-bucket.s3.ap-south-1.amazonaws.com/covers/cover.png",
+      );
+    });
   });
 
   describe("generateUploadUrl", () => {
