@@ -27,7 +27,7 @@ describe("tracksController (DynamoDB Domain)", () => {
   };
 
   describe("healthCheck", () => {
-    it("returns status ok, service tracks, and a valid timestamp", () => {
+    it("returns status ok and a valid timestamp", () => {
       const req = {
         path: "/tracks/health",
       } as unknown as Request;
@@ -39,7 +39,6 @@ describe("tracksController (DynamoDB Domain)", () => {
       expect(res.json).toHaveBeenCalledOnce();
       const payload = vi.mocked(res.json).mock.calls[0][0];
       expect(payload.status).toBe("ok");
-      expect(payload.service).toBe("tracks");
       expect(payload.timestamp).toBeDefined();
     });
   });

@@ -135,7 +135,6 @@ export const domainController = {
     logger.info("Health check requested", { path: req.path });
     return res.status(200).json({
       status: "ok",
-      service: "example-domain",
       timestamp: new Date().toISOString(),
     });
   },

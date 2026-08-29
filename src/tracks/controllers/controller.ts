@@ -31,7 +31,6 @@ export const tracksController = {
     logger.info("Tracks health check requested", { path: req.path });
     return res.status(200).json({
       status: "ok",
-      service: "tracks",
       timestamp: new Date().toISOString(),
     });
   },
